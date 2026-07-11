@@ -6,7 +6,7 @@ frontend:
     pullPolicy: Always
   service:
     type: LoadBalancer
-    port: 3000
+    port: 80
 
 hello:
   replicaCount: 1
@@ -16,7 +16,7 @@ hello:
     pullPolicy: Always
   service:
     type: ClusterIP
-    port: 3001
+    port: 5001
 
 profile:
   replicaCount: 1
@@ -26,4 +26,4 @@ profile:
     pullPolicy: Always
   service:
     type: ClusterIP
-    port: 3002
+    port: 5002
