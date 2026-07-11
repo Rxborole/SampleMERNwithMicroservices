@@ -22,9 +22,7 @@ pipeline {
         stage('Build Frontend Image') {
             steps {
                 dir('frontend') {
-                    sh '''
-                    docker build -t streaming-frontend:latest .
-                    '''
+                    sh 'docker build -t streaming-frontend:latest .'
                 }
             }
         }
@@ -32,9 +30,7 @@ pipeline {
         stage('Build Hello Service Image') {
             steps {
                 dir('backend/helloService') {
-                    sh '''
-                    docker build -t streaming-hello-service:latest .
-                    '''
+                    sh 'docker build -t streaming-hello-service:latest .'
                 }
             }
         }
@@ -42,9 +38,7 @@ pipeline {
         stage('Build Profile Service Image') {
             steps {
                 dir('backend/profileService') {
-                    sh '''
-                    docker build -t streaming-profile-service:latest .
-                    '''
+                    sh 'docker build -t streaming-profile-service:latest .'
                 }
             }
         }
@@ -52,31 +46,21 @@ pipeline {
         stage('Verify AWS Credentials') {
             steps {
                 withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'rupesh-aws'
-                    ]
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'rupesh_aws-ecr']
                 ]) {
 
                     sh '''
-                    echo "==============================="
-                    echo "AWS Identity"
-                    echo "==============================="
-
+                    echo "===== AWS Identity ====="
                     aws sts get-caller-identity
 
-                    echo ""
-                    echo "==============================="
-                    echo "ECR Repositories"
-                    echo "==============================="
+                    echo "===== IAM User ====="
+                    aws iam get-user
 
+                    echo "===== ECR Repositories ====="
                     aws ecr describe-repositories
 
-                    echo ""
-                    echo "==============================="
-                    echo "AWS CLI Version"
-                    echo "==============================="
-
+                    echo "===== AWS CLI ====="
                     aws --version
                     '''
                 }
@@ -86,10 +70,8 @@ pipeline {
         stage('Login to Amazon ECR') {
             steps {
                 withCredentials([
-                    [
-                        $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'rupesh-aws'
-                    ]
+                    [$class: 'AmazonWebServicesCredentialsBinding',
+                     credentialsId: 'rupesh_aws-ecr']
                 ]) {
 
                     sh '''
@@ -104,7 +86,6 @@ pipeline {
 
         stage('Tag Docker Images') {
             steps {
-
                 sh '''
                 docker tag streaming-frontend:latest \
                 $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
@@ -120,7 +101,6 @@ pipeline {
 
         stage('Push Images to Amazon ECR') {
             steps {
-
                 sh '''
                 docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/$FRONTEND_REPO:latest
 
@@ -130,31 +110,18 @@ pipeline {
                 '''
             }
         }
-
     }
 
     post {
-
         success {
-
-            echo '''
-====================================
-Pipeline Completed Successfully
-====================================
-'''
+            echo "Pipeline Completed Successfully"
         }
 
         failure {
-
-            echo '''
-====================================
-Pipeline Failed
-====================================
-'''
+            echo "Pipeline Failed"
         }
 
         always {
-
             sh '''
             docker image prune -af || true
             docker builder prune -af || true
