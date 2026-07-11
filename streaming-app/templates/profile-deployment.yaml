@@ -13,8 +13,16 @@ spec:
         app: profile-service
     spec:
       containers:
-      - name: profile-service
-        image: "{{ .Values.profile.image.repository }}:{{ .Values.profile.image.tag }}"
-        imagePullPolicy: {{ .Values.profile.image.pullPolicy }}
-        ports:
-        - containerPort: 5002
+        - name: profile-service
+          image: "{{ .Values.profile.image.repository }}:{{ .Values.profile.image.tag }}"
+          imagePullPolicy: {{ .Values.profile.image.pullPolicy }}
+
+          env:
+            - name: PORT
+              value: "5002"
+
+            - name: MONGO_URL
+              value: "mongodb://mongo:27017/profile-db"
+
+          ports:
+            - containerPort: 5002
