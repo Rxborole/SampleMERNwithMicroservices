@@ -1,0 +1,29 @@
+frontend:
+  replicaCount: 1
+  image:
+    repository: 116715028929.dkr.ecr.ap-south-1.amazonaws.com/streaming-frontend
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: LoadBalancer
+    port: 3000
+
+hello:
+  replicaCount: 1
+  image:
+    repository: 116715028929.dkr.ecr.ap-south-1.amazonaws.com/streaming-hello-service
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 3001
+
+profile:
+  replicaCount: 1
+  image:
+    repository: 116715028929.dkr.ecr.ap-south-1.amazonaws.com/streaming-profile-service
+    tag: latest
+    pullPolicy: Always
+  service:
+    type: ClusterIP
+    port: 3002
