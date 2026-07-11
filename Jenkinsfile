@@ -54,7 +54,7 @@ pipeline {
                 withCredentials([
                     [
                         $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-ecr'
+                        credentialsId: 'rupesh-aws'
                     ]
                 ]) {
 
@@ -88,7 +88,7 @@ pipeline {
                 withCredentials([
                     [
                         $class: 'AmazonWebServicesCredentialsBinding',
-                        credentialsId: 'aws-ecr'
+                        credentialsId: 'rupesh-aws'
                     ]
                 ]) {
 
