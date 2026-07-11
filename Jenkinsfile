@@ -2,53 +2,95 @@ pipeline {
     agent { label 'linux-manik' }
 
     environment {
-        AWS_REGION = 'ap-south-1'
+        AWS_REGION     = 'ap-south-1'
         AWS_ACCOUNT_ID = '116715028929'
 
         FRONTEND_REPO = 'streaming-frontend'
-        HELLO_REPO = 'streaming-hello-service'
-        PROFILE_REPO = 'streaming-profile-service'
+        HELLO_REPO    = 'streaming-hello-service'
+        PROFILE_REPO  = 'streaming-profile-service'
     }
 
     stages {
 
-        stage('Checkout') {
+        stage('Checkout Source Code') {
             steps {
                 git branch: 'main',
-                url: 'https://github.com/Rxborole/SampleMERNwithMicroservices.git'
+                    url: 'https://github.com/Rxborole/SampleMERNwithMicroservices.git'
             }
         }
 
-        stage('Build Frontend') {
+        stage('Build Frontend Image') {
             steps {
                 dir('frontend') {
-                    sh 'docker build -t streaming-frontend .'
+                    sh '''
+                    docker build -t streaming-frontend:latest .
+                    '''
                 }
             }
         }
 
-        stage('Build Hello Service') {
+        stage('Build Hello Service Image') {
             steps {
                 dir('backend/helloService') {
-                    sh 'docker build -t streaming-hello-service .'
+                    sh '''
+                    docker build -t streaming-hello-service:latest .
+                    '''
                 }
             }
         }
 
-        stage('Build Profile Service') {
+        stage('Build Profile Service Image') {
             steps {
                 dir('backend/profileService') {
-                    sh 'docker build -t streaming-profile-service .'
+                    sh '''
+                    docker build -t streaming-profile-service:latest .
+                    '''
+                }
+            }
+        }
+
+        stage('Verify AWS Credentials') {
+            steps {
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-ecr'
+                    ]
+                ]) {
+
+                    sh '''
+                    echo "==============================="
+                    echo "AWS Identity"
+                    echo "==============================="
+
+                    aws sts get-caller-identity
+
+                    echo ""
+                    echo "==============================="
+                    echo "ECR Repositories"
+                    echo "==============================="
+
+                    aws ecr describe-repositories
+
+                    echo ""
+                    echo "==============================="
+                    echo "AWS CLI Version"
+                    echo "==============================="
+
+                    aws --version
+                    '''
                 }
             }
         }
 
         stage('Login to Amazon ECR') {
             steps {
-                withCredentials([[
-                    $class: 'AmazonWebServicesCredentialsBinding',
-                    credentialsId: 'aws-ecr'
-                ]]) {
+                withCredentials([
+                    [
+                        $class: 'AmazonWebServicesCredentialsBinding',
+                        credentialsId: 'aws-ecr'
+                    ]
+                ]) {
 
                     sh '''
                     aws ecr get-login-password --region $AWS_REGION | \
@@ -60,7 +102,7 @@ pipeline {
             }
         }
 
-        stage('Tag Images') {
+        stage('Tag Docker Images') {
             steps {
 
                 sh '''
@@ -76,7 +118,7 @@ pipeline {
             }
         }
 
-        stage('Push Images') {
+        stage('Push Images to Amazon ECR') {
             steps {
 
                 sh '''
@@ -88,20 +130,35 @@ pipeline {
                 '''
             }
         }
+
     }
 
     post {
 
-        always {
-            sh 'docker image prune -f'
-        }
-
         success {
-            echo 'Images successfully pushed to Amazon ECR'
+
+            echo '''
+====================================
+Pipeline Completed Successfully
+====================================
+'''
         }
 
         failure {
-            echo 'Pipeline Failed'
+
+            echo '''
+====================================
+Pipeline Failed
+====================================
+'''
+        }
+
+        always {
+
+            sh '''
+            docker image prune -af || true
+            docker builder prune -af || true
+            '''
         }
     }
 }
