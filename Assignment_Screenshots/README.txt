@@ -1,0 +1,20 @@
+Assignment Screenshots
+
+01_GitHub_Repository.png
+02_GitHub_Webhook_Test_Push.png
+03_GitHub_Webhook_Configuration.png
+04_Jenkins_CI_Pipeline.png
+05_Jenkins_Pipeline_Logs.png
+06_ECR_Repositories.png
+07_ECR_Frontend_Image.png
+08_ECR_Hello_Service_Image.png
+09_ECR_Profile_Service_Image.png
+10_Kubernetes_Nodes.png
+11_Helm_Deployment.png
+12_Helm_Release_List.png
+13_Application_Output.png
+14_CloudWatch_Container_Insights_Dashboard.png
+15_CloudWatch_Container_Map.png
+16_CloudWatch_Pod_Metrics.png
+17_CloudWatch_Container_Metrics.png
+18_CloudWatch_Performance_Monitoring.png

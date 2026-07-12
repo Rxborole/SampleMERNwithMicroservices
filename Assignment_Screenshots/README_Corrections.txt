@@ -1,0 +1,1 @@
+Files renamed based on visible screenshot contents. Some expected assignment screenshots are missing from the provided ZIP (kubectl get pods, helm install, etc.).
